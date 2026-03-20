@@ -1,0 +1,190 @@
+ÇELEBİ DUYURU EKRANI – BENİ OKU (KURULUM REHBERİ)
+=================================================
+
+Bu proje:
+- Ana ekran: http://localhost:3000
+- Admin panel: http://localhost:3000/admin
+- Admin QR (opsiyonel): Cloudflare Tunnel ile dışarıdan erişim linki üretir.
+
+-------------------------------------------------
+1) GEREKSİNİMLER
+-------------------------------------------------
+A) Windows 10/11
+B) Node.js (LTS önerilir)
+   - Kurulumdan sonra doğrulama:
+     cmd / PowerShell:
+     node -v
+     npm -v
+
+C) Proje klasörü (duyuru-ekrani)
+   - İçinde şunlar olmalı:
+     server.js
+     index.html
+     admin.html
+     style.css (veya css dosyan)
+     duyurular.json (yoksa otomatik oluşur)
+     reminders.json (yoksa otomatik oluşur)
+     current-image.json (yoksa otomatik oluşur)
+     uploads/ (yoksa otomatik oluşur)
+
+-------------------------------------------------
+2) PROJEYİ YENİ PC’YE TAŞIMA
+-------------------------------------------------
+Seçenek 1 (Klasörü kopyala):
+- Tüm proje klasörünü USB ile yeni PC’ye kopyala.
+
+Seçenek 2 (GitHub varsa):
+- git clone <repo-url>
+- veya zip indir → çıkar.
+
+-------------------------------------------------
+3) İLK KURULUM (NODE MODÜLLERİ)
+-------------------------------------------------
+1) PowerShell aç
+2) Proje klasörüne gir:
+   cd "C:\...\duyuru-ekrani\DUYURU_EKRANI - Kopya"
+
+3) Bağımlılıkları yükle:
+   npm install
+
+NOT: Eğer "Cannot find package 'qrcode'" vb hata alırsan:
+   npm install qrcode express socket.io multer express-basic-auth node-fetch
+
+-------------------------------------------------
+4) SUNUCUYU ÇALIŞTIRMA
+-------------------------------------------------
+1) Sunucuyu başlat:
+   node server.js
+
+2) Tarayıcıdan aç:
+   Ana ekran:  http://localhost:3000
+   Admin:      http://localhost:3000/admin
+
+3) Admin giriş bilgileri:
+   - Kullanıcı: celebi
+   - Şifre: Harekat2026!
+   (Bu değerleri ENV ile değiştirebilirsin. Aşağıya bak.)
+
+-------------------------------------------------
+5) ADMIN KULLANICI/ŞİFRE DEĞİŞTİRME (ÖNERİLİR)
+-------------------------------------------------
+Projede server.js şu şekilde okuyor:
+ADMIN_USER / ADMIN_PASS
+
+Geçici olarak PowerShell’de çalıştırmak için:
+
+$env:ADMIN_USER="mert"
+$env:ADMIN_PASS="GucluSifre123!"
+node server.js
+
+Kalıcı yapmak için (Windows):
+- Denetim Masası → Sistem → Gelişmiş sistem ayarları
+- Ortam Değişkenleri → Yeni
+  ADMIN_USER = ...
+  ADMIN_PASS = ...
+Sonra PC’yi/terminali yeniden başlat.
+
+-------------------------------------------------
+6) DIŞARI AÇMA (QR İLE TABLET/TELEFON ADMİN) – OPSİYONEL
+-------------------------------------------------
+Bu kısım Cloudflare Tunnel ile link üretmek içindir.
+ÖNEMLİ: Domain almadan da çalışır (trycloudflare.com linki).
+
+A) Cloudflared kur (Windows):
+   winget install --id Cloudflare.cloudflared
+
+B) Doğrula:
+   cloudflared --version
+
+C) Projede zaten otomatik başlatma varsa:
+   server.js çalışınca cloudflared de otomatik açılır.
+   QR kod /api/admin-qr üzerinden üretilir.
+
+D) Manuel test (opsiyonel):
+   cloudflared tunnel --url http://localhost:3000
+
+-------------------------------------------------
+7) GÖRSEL YÜKLEME (GÜNÜN FARKINDALIĞI / FOTOĞRAF)
+-------------------------------------------------
+Admin panelden "Görsel Yükle" kısmından resim seçip Yükle’ye bas.
+- Resim uploads/ klasörüne kaydedilir.
+- current-image.json güncellenir.
+- Ana ekran otomatik yenilenir (socket ile).
+
+Eğer tablet üzerinden yükleme çalışmıyorsa:
+- Admin linkinin https olduğuna emin ol (cloudflare linki).
+- Çok büyük dosya yüklemeyi deneme (10MB sınırı var).
+- Farklı tarayıcı dene (Chrome önerilir).
+- iPhone/Safari bazen upload’da sorun çıkarabilir.
+
+-------------------------------------------------
+8) WINDOWS GÜVENLİK DUVARI / AĞ
+-------------------------------------------------
+- Lokal erişim için genelde sorun olmaz.
+- Eğer aynı ağdaki başka cihazdan LAN ile erişeceksen:
+  PC’nin IP’si: ipconfig
+  Sonra:
+  http://PC_IP:3000
+
+Windows Güvenlik Duvarı port izni (gerekirse):
+- 3000 TCP portunu inbound izinli yap.
+
+-------------------------------------------------
+9) OTOMATİK BAŞLATMA (PC AÇILINCA KENDİLİĞİNDEN AÇILSIN)
+-------------------------------------------------
+Seçenek A (Basit):
+- Bir .bat dosyası oluştur:
+  start_server.bat içeriği:
+
+  cd /d "C:\...\duyuru-ekrani\DUYURU_EKRANI - Kopya"
+  node server.js
+
+- Bu .bat dosyasını:
+  Başlangıç klasörüne ekle:
+  Win + R → shell:startup
+
+Seçenek B (Daha sağlam – PM2):
+- npm i -g pm2
+- pm2 start server.js --name celebi-ekran
+- pm2 save
+(Not: Windows’ta PM2 startup ekstra ayar isteyebilir.)
+
+-------------------------------------------------
+10) SIK HATALAR / ÇÖZÜMLER
+-------------------------------------------------
+A) ERR_CONNECTION_REFUSED (site açılmıyor)
+- server.js çalışmıyordur.
+- Terminalde node server.js açık kalmalı.
+- Port dolu olabilir:
+  netstat -ano | findstr :3000
+  Gösterdiği PID’yi kapat.
+
+B) Uncaught SyntaxError: Unexpected end of input
+- script.js içinde kapatılmamış parantez/brace vardır.
+- Son değişiklikleri geri al veya dosyayı kontrol et.
+
+C) Cannot find package 'qrcode'
+- npm install
+- veya npm install qrcode
+
+D) cloudflared origin cert hatası
+- “quick tunnel” kullanıyorsan sorun değil.
+- Named tunnel için domain/zone gerekir. Şimdilik gerek yok.
+
+-------------------------------------------------
+11) KULLANIM ÖZETİ
+-------------------------------------------------
+- PC: Ana ekran TV’ye yansır ve sürekli açık kalır.
+- Tablet/Telefon: QR ile admin panel açılır.
+- Duyuru & Hatırlatma anında ekrana düşer.
+- Görsel yüklemesi uploads/ üzerinden güncellenir.
+
+-------------------------------------------------
+12) ÖNERİLEN İŞLETİM
+-------------------------------------------------
+- PC açılınca otomatik server.js çalışsın
+- Chrome tam ekran / kiosk mod aç
+- Admin şifresini güçlü yap
+- Upload boyut limitini aşma (10MB)
+
+BİTTİ ✅

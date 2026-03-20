@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1772753639931,
+    "name": "gunfarkindalik2.jpg",
+    "fileName": "1772753639928-gunfarkindalik2.jpg",
+    "url": "/uploads/1772753639928-gunfarkindalik2.jpg",
+    "mime": "image/jpeg",
+    "mediaType": "image",
+    "createdAt": 1772753639931
+  },
+  {
+    "id": 1772753624614,
+    "name": "gunfarkindalik1.jpg",
+    "fileName": "1772753624611-gunfarkindalik1.jpg",
+    "url": "/uploads/1772753624611-gunfarkindalik1.jpg",
+    "mime": "image/jpeg",
+    "mediaType": "image",
+    "createdAt": 1772753624614
+  },
+  {
+    "id": 1772753599068,
+    "name": "harekat_cevre_guvenligi.jpg",
+    "fileName": "1772753599066-harekat_cevre_guvenligi.jpg",
+    "url": "/uploads/1772753599066-harekat_cevre_guvenligi.jpg",
+    "mime": "image/jpeg",
+    "mediaType": "image",
+    "createdAt": 1772753599068
+  },
+  {
+    "id": 1772753585861,
+    "name": "harekat_pushback_guvenli.jpg",
+    "fileName": "1772753585859-harekat_pushback_guvenli.jpg",
+    "url": "/uploads/1772753585859-harekat_pushback_guvenli.jpg",
+    "mime": "image/jpeg",
+    "mediaType": "image",
+    "createdAt": 1772753585861
+  },
+  {
+    "id": 1772753575995,
+    "name": "harekat_dis_hat_hijyen.jpg",
+    "fileName": "1772753575992-harekat_dis_hat_hijyen.jpg",
+    "url": "/uploads/1772753575992-harekat_dis_hat_hijyen.jpg",
+    "mime": "image/jpeg",
+    "mediaType": "image",
+    "createdAt": 1772753575995
+  },
+  {
+    "id": 1772753559349,
+    "name": "harekat_isikli_serit_uyarisi.jpg",
+    "fileName": "1772753559346-harekat_isikli_serit_uyarisi.jpg",
+    "url": "/uploads/1772753559346-harekat_isikli_serit_uyarisi.jpg",
+    "mime": "image/jpeg",
+    "mediaType": "image",
+    "createdAt": 1772753559349
+  }
+]

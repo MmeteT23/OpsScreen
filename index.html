@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Duyuru Ekranı</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Üst bar -->
+  <header class="topbar">
+    <div id="clock" class="top-clock">--:--:-- • --:--:--</div>
+
+    <div class="top-logo">
+      <div class="logo-plate">
+        <img src="assets/logo.png" alt="Çelebi">
+      </div>
+    </div>
+
+    <div id="weather" class="top-weather">Antalya: --°C</div>
+  </header>
+
+  <!-- Ana Grid -->
+  <main class="main-grid">
+    <!-- Sol: Hatırlatmalar -->
+    <section id="remindersPanel" class="panel-glass">
+      <div class="panel-heading"><span class="panel-dot"></span> HATIRLATMALAR</div>
+      <div id="remindersList" class="reminders-list">
+        <div class="reminder-item ghost">Henüz hatırlatma yok.</div>
+      </div>
+    </section>
+
+    <!-- Sağ: KUTUSUZ Medya Alanı (sadece resim/video) -->
+    <section class="image-only-slot" id="mediaSlot">
+      <img id="custom-image" class="farkindalik-img" style="display:none;" alt="Medya">
+      <video id="custom-video"
+             class="farkindalik-img"
+             style="display:none;"
+             autoplay
+             muted
+             loop
+             playsinline></video>
+      <!-- no-image kaldırıldı: yüklü değilse hiçbir şey görünmeyecek -->
+    </section>
+  </main>
+
+  <!-- Duyuru Bandı -->
+  <div id="announcement" class="announcement info">Duyuru bekleniyor...</div>
+
+  
+
+  <!-- Haberler -->
+  <div class="news-ticker">
+    <span id="news-ticker">Haberler yükleniyor...</span>
+  </div>
+
+  <!-- Bildirim sesi -->
+  <audio id="notification-sound" src="assets/bildirim.mp3" preload="auto"></audio>
+
+  <!-- Admin QR -->
+  <div id="adminQRBox">
+    <p>Admin Bağlantı</p>
+    <img id="adminQR" alt="Admin QR" />
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

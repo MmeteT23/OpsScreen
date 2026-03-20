@@ -1,0 +1,12 @@
+{
+  "tr": {
+    "greeting": "Hoş geldiniz",
+    "weather": "Hava durumu",
+    "flightInfo": "Uçuş Bilgisi"
+  },
+  "en": {
+    "greeting": "Welcome",
+    "weather": "Weather",
+    "flightInfo": "Flight Information"
+  }
+}

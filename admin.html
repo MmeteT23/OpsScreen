@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Çelebi Admin v2.1 | Kontrol Merkezi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #040911;
+      --glass: rgba(15, 29, 49, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --accent-blue: #00d2ff;
+      --accent-green: #00ff87;
+      --accent-red: #ff3e3e;
+      --accent-orange: #ff9f0a;
+      --text: #f0f4f8;
+      --muted: #8a9bb7;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    body {
+      margin: 0; font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top right, #0d1b2e, #040911);
+      color: var(--text); min-height: 100vh; display: flex;
+    }
+
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0; width: 280px;
+      background: rgba(10, 20, 35, 0.85); backdrop-filter: blur(20px);
+      border-right: 1px solid var(--glass-border); padding: 40px 25px; z-index: 100;
+    }
+
+    .logo-area { text-align: center; margin-bottom: 50px; }
+    .logo-area h1 { font-weight: 800; font-size: 26px; letter-spacing: 3px; background: linear-gradient(to right, #fff, var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+    .logo-area p { color: var(--muted); font-size: 11px; text-transform: uppercase; margin-top: 5px; }
+
+    nav a {
+      display: flex; align-items: center; padding: 16px 20px; color: var(--muted);
+      text-decoration: none; border-radius: var(--radius); margin-bottom: 12px; font-weight: 500;
+    }
+    nav a:hover, nav a.active { background: rgba(0, 210, 255, 0.1); color: var(--accent-blue); }
+
+    .main { margin-left: 280px; padding: 40px; width: 100%; max-width: 1300px; }
+
+    .card {
+      background: var(--glass); backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border); border-radius: var(--radius);
+      padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-bottom: 30px;
+    }
+
+    .card-title { font-weight: 700; font-size: 19px; margin-bottom: 25px; color: var(--accent-blue); display: flex; align-items: center; gap: 12px; }
+
+    textarea, input, select {
+      width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      border-radius: 12px; padding: 15px; color: #fff; font-size: 15px; margin-bottom: 15px; outline: none;
+    }
+
+    .btn-group { display: flex; gap: 12px; }
+    button {
+      padding: 14px 24px; border-radius: 12px; border: none; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: #fff; flex: 1;
+    }
+    button:active { transform: scale(0.96); }
+
+    .btn-blue { background: linear-gradient(135deg, #007aff, #00d2ff); }
+    .btn-red { background: linear-gradient(135deg, #c62828, #ff3e3e); }
+    .btn-green { background: linear-gradient(135deg, #2e7d32, #00ff87); color: #040911; }
+    .btn-orange { background: linear-gradient(135deg, #f59e0b, #ff9f0a); color: #040911; }
+
+    .list-row { background: rgba(255,255,255,0.03); padding: 15px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border); margin-bottom: 10px; }
+    
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .media-card { background: rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border); position: relative; }
+    .media-preview { width: 100%; height: 120px; object-fit: cover; background: #000; }
+    .active-badge { position: absolute; top: 10px; right: 10px; background: var(--accent-green); color: #000; padding: 4px 8px; border-radius: 5px; font-size: 10px; font-weight: 900; }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo-area"><h1>ÇELEBİ</h1><p>Control Center v2.1</p></div>
+    <nav>
+      <a href="#" class="active">🏠 Dashboard</a>
+      <a href="#section-announcement">📣 Duyuru</a>
+      <a href="#section-reminders">📝 Hatırlatma</a>
+      <a href="#section-media">🖼️ Medya</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+      <h2 style="font-size: 32px; margin:0;">Admin Dashboard</h2>
+      <div id="clock" style="color:var(--muted); font-weight:700; font-size:20px;">--:--:--</div>
+    </div>
+
+    <section id="section-announcement" class="card">
+      <div class="card-title">📣 DUYURU YAYINLA</div>
+      <textarea id="annText" rows="3" placeholder="Alt bantta kayacak mesajı buraya yazın..."></textarea>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <select id="annType" style="flex: 1; margin:0;">
+          <option value="info">Bilgi (Mavi)</option>
+          <option value="warning">Uyarı (Turuncu)</option>
+          <option value="critical">Kritik (Kırmızı)</option>
+        </select>
+        <div class="btn-group" style="flex: 2;">
+          <button onclick="publishAnn()" class="btn-blue">YAYINLA</button>
+          <button onclick="stopAnn()" class="btn-red">DURDUR</button>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+      <section class="card">
+        <div class="card-title">📝 YENİ HATIRLATMA</div>
+        <textarea id="remText" rows="3" placeholder="Hatırlatma metnini girin..."></textarea>
+        <button onclick="addRem()" class="btn-green">EKLE</button>
+      </section>
+      <section class="card">
+        <div class="card-title">📋 LİSTE</div>
+        <div id="remList" style="max-height: 300px; overflow-y: auto;"></div>
+      </section>
+    </div>
+
+    <section id="section-media" class="card">
+      <div class="card-title">🖼️ MEDYA & SANİYE AYARI</div>
+      <div style="border: 2px dashed var(--glass-border); padding: 40px; border-radius: 20px; text-align: center; background: rgba(255,255,255,0.01);">
+        <input type="file" id="fileInput" style="display:none">
+        <button onclick="document.getElementById('fileInput').click()" class="btn-blue" style="max-width: 300px; margin: 0 auto;">DOSYA SEÇİN</button>
+        <p id="fileInfo" style="margin: 15px 0; color: var(--muted); font-size: 13px;">Seçilmedi</p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0;">
+          <label>Resim Süresi (Saniye):</label>
+          <input type="number" id="imgSec" value="10" style="width: 80px; margin:0; text-align:center;">
+        </div>
+
+        <button onclick="uploadMedia()" class="btn-orange" style="max-width: 400px; margin: 0 auto;">SUNUCUYA YÜKLE</button>
+      </div>
+
+      <div class="card-title" style="margin-top: 40px;">📂 YÜKLÜ MEDYALAR</div>
+      <div id="mediaGrid" class="media-grid"></div>
+    </section>
+  </main>
+
+  <script>
+    // 1. SAAT VE DOSYA SEÇİMİ
+    setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString('tr-TR'); }, 1000);
+    document.getElementById('fileInput').onchange = e => { 
+        document.getElementById('fileInfo').textContent = e.target.files[0]?.name || "Seçilmedi"; 
+    };
+
+    // 2. DUYURU İŞLEMLERİ
+    async function publishAnn() {
+      const text = document.getElementById('annText').value.trim();
+      const type = document.getElementById('annType').value;
+      if(!text) return alert("Metin girin!");
+
+      await fetch('/api/announcement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, type })
+      });
+      document.getElementById('annText').value = "";
+      alert("Gönderildi!");
+    }
+
+    async function stopAnn() {
+      await fetch('/api/announcement', { method: 'DELETE' });
+      alert("Durduruldu.");
+    }
+
+    // 3. HATIRLATMA İŞLEMLERİ
+    async function loadReminders() {
+      const res = await fetch('/api/reminders');
+      const data = await res.json();
+      const box = document.getElementById('remList');
+      box.innerHTML = "";
+      data.forEach(it => {
+        box.innerHTML += `
+          <div class="list-row">
+            <span style="font-size:14px;">${it.text}</span>
+            <div class="btn-group" style="flex:none; gap:5px;">
+              <button onclick="speakRem(${it.id})" class="btn-blue" style="padding:5px 10px; font-size:11px;">📢</button>
+              <button onclick="deleteRem(${it.id})" class="btn-red" style="padding:5px 10px; font-size:11px;">🗑️</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    async function addRem() {
+      const text = document.getElementById('remText').value.trim();
+      if(!text) return;
+      await fetch('/api/reminders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      document.getElementById('remText').value = "";
+      loadReminders();
+    }
+
+    async function deleteRem(id) { await fetch('/api/reminders/' + id, { method: 'DELETE' }); loadReminders(); }
+    async function speakRem(id) { await fetch('/api/reminders/' + id + '/speak', { method: 'POST' }); }
+
+    // 4. MEDYA İŞLEMLERİ
+    async function uploadMedia() {
+      const file = document.getElementById('fileInput').files[0];
+      const duration = document.getElementById('imgSec').value;
+      if(!file) return alert("Lütfen önce bir dosya seçin!");
+
+      try {
+        // Süre ayarını gönder
+        await fetch('/api/media-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: true, intervalSec: Number(duration) || 10 })
+        });
+
+        // Dosyayı gönder
+        const fd = new FormData();
+        fd.append('media', file);
+
+        const res = await fetch('/api/media-upload', {
+          method: 'POST',
+          body: fd
+        });
+
+        const data = await res.json();
+        if (data.ok) {
+           alert('Medya başarıyla yüklendi.');
+           loadMedia();
+        }
+      } catch (err) {
+        alert('Yükleme hatası oluştu!');
+      }
+    }
+
+    async function loadMedia() {
+      const res = await fetch('/api/media-list');
+      const payload = await res.json();
+      const items = Array.isArray(payload) ? payload : (payload.items || []);
+      const settings = payload.settings || {};
+      const box = document.getElementById('mediaGrid');
+
+      if (!items.length) {
+        box.innerHTML = '<p style="color:var(--muted)">Henüz medya yüklü değil.</p>';
+        return;
+      }
+
+      box.innerHTML = items.map(it => `
+        <div class="media-card">
+          ${it.mediaType === 'video' 
+            ? `<video class="media-preview" src="${it.url}" muted></video>` 
+            : `<img class="media-preview" src="${it.url}">`}
+          ${String(settings.activeId) === String(it.id) ? '<span class="active-badge">AKTİF</span>' : ''}
+          <div style="padding:10px; display:flex; gap:5px;">
+            <button onclick="activateMed(${it.id})" class="btn-green" style="padding:5px; font-size:10px;">AKTİF ET</button>
+            <button onclick="deleteMed(${it.id})" class="btn-red" style="padding:5px; font-size:10px;">SİL</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function activateMed(id) {
+      await fetch(`/api/media-list/${id}/activate`, { method: 'POST' });
+      loadMedia();
+    }
+
+    async function deleteMed(id) {
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
+      await fetch(`/api/media-list/${id}`, { method: 'DELETE' });
+      loadMedia();
+    }
+
+    // BAŞLANGIÇTA VERİLERİ ÇEK
+    loadReminders();
+    loadMedia();
+  </script>
+</body>
+</html>

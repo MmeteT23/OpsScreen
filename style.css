@@ -1,0 +1,963 @@
+*{box-sizing:border-box}
+
+:root{
+  --blue:#0d5294;
+  --glass-bg-1: rgba(18,22,28,.86);
+  --glass-bg-2: rgba(18,22,28,.78);
+  --glass-border: rgba(255,255,255,.08);
+  --glass-text:#e9eef8;
+  --accent:#3ea6ff;
+}
+
+html,body{
+  height:100%;
+  margin:0;
+  font-family:'Roboto',system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+  color:#fff;
+  background:#0c0f14 url('assets/arkaplan.jpeg') center/cover no-repeat fixed;
+}
+
+/* === ADMIN QR (Her zaman görünür) === */
+#adminQRBox{
+  position: fixed;
+  right: 910px;
+  bottom: 650px;
+  z-index: 99999;
+  background: rgba(11, 42, 74, 0.92);
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+#adminQRBox p{
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: .95;
+}
+
+#adminQR{
+  width: 120px;
+  height: 120px;
+  display: block;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
+}
+
+/* ==== Üst bar ==== */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  height:64px;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items:center;
+  background:var(--blue);
+  padding:0 50px;
+}
+
+.top-clock{
+  font-weight:700;
+  font-size: clamp(22px, 3vw, 36px);
+  transform: translateY(-85px);
+}
+
+.top-logo{
+  display:flex;
+  justify-content:center;
+}
+
+.logo-plate{
+  width:225px;
+  height:225px;
+  margin-top:15px;
+  margin-right:40px;
+  border-radius:999px;
+  background:#fff;
+  display:grid;
+  place-items:center;
+  box-shadow:0 10px 26px rgba(0,0,0,.35);
+}
+
+.logo-plate img{
+  width:325px;
+  height:auto;
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,.2));
+  transform: translateX(-47px);
+}
+
+.top-weather{
+  justify-self:end;
+  background:rgba(255,255,255,.15);
+  padding:10px 16px;
+  border-radius:16px;
+  font-weight:700;
+  font-size: clamp(14px, 1.4vw, 20px);
+  transform: translateY(-85px);
+}
+
+/* ==== Ana Grid ==== */
+.main-grid{
+  display:grid;
+  grid-template-columns: 42% 58%;
+  gap:16px;
+  padding:16px;
+  margin-top:50px;
+  align-items:start;
+}
+
+/* Sol panel */
+.panel-glass{
+  border-radius:22px;
+  padding: clamp(20px, 2.6vw, 30px);
+  color:var(--glass-text);
+  background:linear-gradient(180deg,var(--blue),var(--glass-bg-2));
+  border:1px solid var(--glass-border);
+  box-shadow:0 8px 26px rgba(75,75,75,.85), inset 0 1px rgba(171,169,169,.48);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin-right:100px;
+  margin-left:15px;
+  transform: translateX(50px);
+}
+
+.panel-heading {
+  background: #9d0000;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 170px;
+    margin-bottom: 25px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #ffffff;
+    font-size: clamp(25px, 1.6vw, 22px);
+}
+
+/*.panel-dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent);
+}
+
+/* Hatırlatmalar */
+.reminders-list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  max-height:75vh;
+  overflow:auto;
+  padding-right:4px;
+}
+
+.reminder-item{
+  background:#4b081c80;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:16px 18px;
+  font-weight:700;
+  font-size: clamp(16px, 1.4vw, 20px);
+  box-shadow: inset 0 1px rgb(255, 255, 255);
+  font-size: 30px;     /* ✅ yazı büyüdü */
+  line-height: 1.35;   /* ✅ daha okunaklı */
+  padding: 18px 22px;  /* ✅ kutucuklar biraz daha büyük */
+  font-weight: 800;
+}
+
+
+.ghost{
+  opacity:.6;
+  font-weight:400;
+}
+
+/* Sağ kolon genel kart */
+.card{
+  transform: translateX(310px);   /* daha dengeli konum */
+  max-width: 520px;               /* büyütüldü */
+  width: 100%;
+  background: linear-gradient(180deg, #0b4a84 0%, #173655 100%);
+  color:#fff;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 10px 28px rgba(0,0,0,.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.card-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.card-header h3{
+  margin:0;
+  font-weight:800;
+  letter-spacing:.4px;
+  font-size: clamp(16px, 1.6vw, 22px);
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#31d0ff;
+  box-shadow:0 0 0 0 rgba(49,208,255,.6);
+  animation:pulse 1.8s infinite;
+}
+
+@keyframes pulse{
+  to{box-shadow:0 0 0 14px rgba(49,208,255,0)}
+}
+
+/* Sağ taraftaki görsel alanı - BÜYÜTÜLDÜ */
+.image-card{
+  grid-row: span 2;
+  min-height: 560px;
+}
+
+.image-frame{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 540px;
+  background: rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 10px;
+}
+
+.image-card img{
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: 820px;   /* büyütüldü */
+  object-fit: contain;
+  border-radius:10px;
+  box-shadow:0 10px 20px rgba(0,0,0,.45);
+}
+
+.muted{opacity:.8}
+
+/* === Kutusuz görsel alanı kullanıyorsan (farkındalık yerine) === */
+.image-only-slot{
+  grid-row: span 2;
+  transform: translateX(500px);
+  width: 640px;        /* büyütüldü */
+  min-height: 520px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.farkindalik-img{
+  display:block;
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:68vh;     /* büyütüldü */
+  object-fit: contain;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  background: transparent;
+}
+
+.no-image-plain{
+  text-align:center;
+  font-size:18px;
+  opacity:.8;
+  background: transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+/* Duyuru bandı */
+.announcement{
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 95px;
+  z-index: 9990;
+
+  margin: 0;
+  padding: 22px 24px;
+  overflow-y: auto;
+  white-space: normal;
+  height: auto !important;
+  min-height: 80px !important;
+
+  font-weight: 900;
+  font-size: clamp(28px, 2.6vw, 40px);
+  text-align: center;
+  color: #fff;
+  background: #0d5294;
+
+  border-radius: 22px;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.15), 0 16px 26px rgba(0,0,0,.35);
+  border: 3px solid #4fc3f7;
+}
+
+#app-stage .announcement{
+  height:auto !important;
+}
+
+/* Duyuru tipleri */
+.announcement.info{
+  background:#0d5294;
+  border-color:#4fc3f7;
+  color:#fff;
+}
+
+.announcement.warning{
+  background:#ff8f00;
+  border-color:#ffc107;
+  color:#111;
+}
+
+.announcement.critical{
+  background:#b71c1c;
+  border-color:#ff5252;
+  color:#fff;
+}
+
+.breathing{
+  animation:breath 2.1s ease-in-out infinite;
+}
+
+@keyframes breath{
+  0%{
+    transform:scale(1);
+    box-shadow:0 0 0 3px rgba(79,195,247,.25),0 10px 22px rgba(0,0,0,.25);
+  }
+  50%{
+    transform:scale(1.02);
+    box-shadow:0 0 0 6px rgba(79,195,247,.35),0 20px 32px rgba(0,0,0,.35);
+  }
+  100%{
+    transform:scale(1);
+  }
+}
+
+/* Kritik duyuru pulse */
+.announcement.critical.breathing{
+  animation: criticalPulse 1s ease-in-out infinite;
+}
+
+@keyframes criticalPulse{
+  0%{
+    transform: scale(1);
+    box-shadow: 0 0 0 3px rgba(255,82,82,.35), 0 12px 24px rgba(0,0,0,.30);
+  }
+  50%{
+    transform: scale(1.015);
+    box-shadow: 0 0 0 7px rgba(255,82,82,.45), 0 18px 30px rgba(0,0,0,.40);
+  }
+  100%{
+    transform: scale(1);
+    box-shadow: 0 0 0 3px rgba(255,82,82,.35), 0 12px 24px rgba(0,0,0,.30);
+  }
+}
+
+/* Haber bandı */
+.news-ticker{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  background:#000;
+  padding:10px 0;
+  white-space:nowrap;
+}
+
+.news-ticker span{
+  display:inline-block;
+  padding-left:100%;
+  animation:ticker 200s linear infinite;
+  font-size:33px;
+}
+
+@keyframes ticker{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-100%)}
+}
+
+/* Hatırlatma highlight efekti */
+.reminder-item.highlight-reminder{
+  border: 2px solid #ffd54f;
+  background: rgba(255, 193, 7, 0.20);
+  box-shadow:
+    0 0 0 2px rgba(255, 213, 79, 0.25),
+    0 0 18px rgba(255, 213, 79, 0.45);
+  animation: reminderPulse 1s ease-in-out 5;
+}
+
+@keyframes reminderPulse{
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Admin panel speak butonu (admin sayfası kullanırsa) */
+button.speak-btn{
+  background:#2e7d32;
+}
+button.speak-btn:hover{
+  filter:brightness(1.08);
+}
+
+/* === Video medya alanı desteği === */
+#custom-video.farkindalik-img{
+  max-width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  background: transparent;
+}
+
+/* Video controls görünürken de alan bozulmasın */
+.image-frame video{
+  width: auto;
+  height: auto;
+}
+
+/* Görsel/video alanını bir tık daha büyük tutmak için (istersen) */
+.image-card{
+  min-height: 500px;
+}
+.image-frame{
+  min-height: 470px;
+}
+
+/* no-image metni kutusuz kalsın */
+.no-image-plain{
+  text-align:center;
+  font-size:18px;
+  opacity:.85;
+}
+
+/* ================================
+   KUTUSUZ MEDYA ALANI (SAĞ TARAF)
+   - Günün farkındalığı başlık/kutu yok
+   - Sadece resim/video görünür
+   - Medya yoksa boş kalır
+   ================================ */
+
+/* Eski kart stilini bu alanda devre dışı bırak */
+.image-only-slot{
+  grid-row: span 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Konum ve boyut */
+  transform: translateX(200px) translateY(-8px);
+  width: 760px;        /* ✅ büyüdü */
+  min-height: 620px;   /* ✅ büyüdü */
+  max-height: 820px;   /* ✅ büyüdü */
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+}
+
+.image-only-slot .farkindalik-img{
+  display: none;
+  width: 100%;
+  height: 100%;
+  max-width: 760px;    /* ✅ büyüdü */
+  max-height: 820px;   /* ✅ büyüdü */
+  object-fit: contain;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Resim + video ortak görünüm */
+.image-only-slot .farkindalik-img{
+  display: none;
+  width: 100%;
+  height: 100%;
+  max-width: 620px;
+  max-height: 660px;
+  object-fit: contain;  /* taşmadan tam sığdır */
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Video için ek güvenlik */
+.image-only-slot video.farkindalik-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Eski "Günün Farkındalığı" kart/header görünse bile gizle (güvenlik amaçlı) */
+.image-card .card-header,
+.image-card h3,
+.image-frame,
+#no-image{
+  display: none !important;
+}
+
+/* Eğer eski .card class'ı bu alana miras kaldıysa nötrle */
+.image-only-slot.card{
+  max-width: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 1920x1080 için daha dengeli görünüm */
+@media (min-width: 1600px){
+  .image-only-slot{
+    transform: translateX(300px);
+    width: 660px;
+    min-height: 570px;
+    max-height: 710px;
+  }
+
+  .image-only-slot .farkindalik-img{
+    max-width: 720px;
+    max-height: 710px;
+  }
+}
+
+/* ===== Hatırlatmalar paneli taşma fix (duyuru bandı kaymasın) ===== */
+#remindersPanel{
+  height: 720px;           /* 1080p stage için ideal (gerekirse 680-760 arası oynat) */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;        /* dışa taşmayı kes */
+}
+
+/* Başlık sabit kalsın, içerik alanı flex ile büyüsün */
+#remindersPanel .panel-heading{
+  flex: 0 0 auto;
+}
+
+/* Liste alanı panel içinde kalsın */
+#remindersList.reminders-list{
+  flex: 1 1 auto;
+  overflow: hidden;        /* scrollbar istemiyoruz, auto-scroll JS yapacak */
+  padding-right: 6px;
+}
+/* ===== Hatırlatma Auto-Scroll için kesin scrollable alan ===== */
+#remindersPanel{
+  height: 720px;          /* sende çalıştıysa aynı kalsın */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#remindersList.reminders-list{
+  flex: 1 1 auto;
+  overflow-y: auto;       /* ✅ scroll gerçek olsun */
+  overflow-x: hidden;
+  padding-right: 10px;
+
+  scroll-behavior: auto;
+  -ms-overflow-style: none;   /* IE/Edge legacy */
+  scrollbar-width: none;      /* Firefox */
+}
+
+/* Webkit scrollbar gizle */
+#remindersList.reminders-list::-webkit-scrollbar{
+  width: 0px;
+  height: 0px;
+}
+
+/* style.css içindeki ilgili alanları kontrol et veya ekle */
+
+/* style.css içindeki hatırlatma kısmını bu şekilde güncelle */
+#remindersPanel {
+  height: 720px; 
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Dışa taşan her şeyi kes */
+  position: relative;
+}
+
+#remindersList.reminders-list {
+  flex: 1 1 auto;
+  min-height: 0;         /* Flexbox'un kutuyu büyütmesini engeller */
+  max-height: 650px;     /* Başlıktan geriye kalan alan (ayarlanabilir) */
+  overflow-y: auto;      /* Kaydırmayı teknik olarak mümkün kılar */
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+
+  /* Kaydırma çubuğunu tamamen gizle */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#remindersList.reminders-list::-webkit-scrollbar {
+  display: none;
+}
+
+.reminder-item {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+/* ============================================================
+   HATIRLATMALAR PANELİ - TAM DİKKAT ÇEKİCİ TASARIM (BİRLEŞİK)
+   ============================================================ */
+
+/* 1. BAŞLIK: Turuncu-Kırmızı Gradyan ve Hareketli Başlık */
+#remindersPanel .panel-heading {
+  background: linear-gradient(135deg, #ff8f00 0%, #ff5722 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 25px 20px;
+  margin: -10px -10px 25px -10px; /* Panelin kenarlarına tam yaslanma */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 40px; 
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 8px;
+  box-shadow: 0 10px 30px rgba(255, 87, 34, 0.4);
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+  animation: header-shake 5s infinite;
+}
+
+/* Başlığın solundaki yanıp sönen beyaz ikon */
+.panel-dot {
+  width: 22px;
+  height: 22px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 15px #fff, 0 0 30px #fff;
+  animation: header-pulse 1.2s infinite;
+}
+
+/* 2. HATIRLATMA YAZILARI: Devasa Boyut ve Kalın Turuncu Vurgu */
+.reminder-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.07);
+  border-left: 12px solid #ff9f0a; /* Kalın turuncu dikkat çubuğu */
+  border-radius: 12px;
+  padding: 22px 25px;
+  margin-bottom: 20px;
+  font-size: 31x;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.3;
+  text-transform: uppercase; /* Tüm harfler büyük */
+  text-shadow: 2px 4px 10px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  animation: item-pulse 3s infinite ease-in-out;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Hatırlatma içindeki saat bilgisi */
+.reminder-item small, .reminder-item .time {
+  display: block;
+  font-size: 22px;
+  color: #ff9f0a;
+  margin-bottom: 5px;
+  font-weight: 400;
+}
+
+/* 3. ANİMASYON TANIMLARI (KEYFRAMES) */
+
+/* Başlık sallanma efekti */
+@keyframes header-shake {
+  0%, 90% { transform: scale(1); }
+  92% { transform: scale(1.03) rotate(1deg); }
+  94% { transform: scale(1.03) rotate(-1deg); }
+  96% { transform: scale(1.03) rotate(1deg); }
+  100% { transform: scale(1); }
+}
+
+/* Yanıp sönen ışık efekti */
+@keyframes header-pulse {
+  0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 5px #fff; }
+  50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 20px #fff, 0 0 40px #fff; }
+  100% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 5px #fff; }
+}
+
+/* Hatırlatma kutusu parlama efekti */
+@keyframes item-pulse {
+  0% { border-left-color: #ff9f0a; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
+  50% { border-left-color: #ffcc00; box-shadow: 0 8px 35px rgba(255, 159, 10, 0.2); }
+  100% { border-left-color: #ff9f0a; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
+}
+
+/* ============================================================
+   GÖZ ALICI DUYURU BANDI TASARIMI
+   ============================================================ */
+
+#announcement {
+  position: fixed;
+  bottom: 100px; /* Haber bandının hemen üstünde durur */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 50px;
+  border-radius: 25px;
+  
+  /* Yazı Stili */
+  font-size: 48px;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #ffffff;
+  
+  /* Cam Efekti ve Gölge */
+  backdrop-filter: blur(15px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  
+  z-index: 1000;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- DUYURU TİPLERİNE GÖRE RENKLER --- */
+
+/* 1. Bilgi (Info) - Mavi Gradyan */
+#announcement.info {
+  background: linear-gradient(90deg, rgba(13, 82, 148, 0.9), rgba(62, 166, 255, 0.9));
+  border-color: #3ea6ff;
+  box-shadow: 0 0 30px rgba(62, 166, 255, 0.4);
+}
+
+/* 2. Uyarı (Warning) - Turuncu Gradyan */
+#announcement.warning {
+  background: linear-gradient(90deg, rgba(255, 143, 0, 0.9), rgba(255, 87, 34, 0.9));
+  border-color: #ffcc00;
+  box-shadow: 0 0 40px rgba(255, 159, 10, 0.5);
+}
+
+/* 3. Kritik (Critical) - Kırmızı Parlayan Gradyan */
+#announcement.critical {
+  background: linear-gradient(90deg, rgba(198, 40, 40, 0.95), rgba(255, 23, 68, 0.95));
+  border-color: #ff1744;
+  box-shadow: 0 0 50px rgba(255, 23, 68, 0.6);
+  /* Kritik durumda yazı hafifçe titrer */
+  animation: critical-shake 0.5s infinite; 
+}
+
+/* --- ANİMASYONLAR --- */
+
+/* Nefes Alma Efekti (Breathing) */
+.breathing {
+  animation: announcement-pulse 2s infinite ease-in-out;
+}
+
+@keyframes announcement-pulse {
+  0% { transform: translateX(-50%) scale(1); opacity: 0.95; }
+  50% { transform: translateX(-50%) scale(1.02); opacity: 1; filter: brightness(1.2); }
+  100% { transform: translateX(-50%) scale(1); opacity: 0.95; }
+}
+
+@keyframes critical-shake {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-52%) rotate(-0.5deg); }
+  75% { transform: translateX(-48%) rotate(0.5deg); }
+  100% { transform: translateX(-50%) rotate(0deg); }
+}
+
+/* ============================================================
+   DİNAMİK BOARD (HATIRLATMALAR) RENK KONTROLLERİ
+   ============================================================ */
+
+/* 1. BİLGİ (INFO) MODU - MAVİ */
+#remindersPanel.info .panel-heading {
+  background: linear-gradient(135deg, #0d5294 0%, #3ea6ff 100%);
+  box-shadow: 0 10px 30px rgba(62, 166, 255, 0.4);
+}
+#remindersPanel.info .reminder-item {
+  border-left-color: #3ea6ff; /* Yazıların yanındaki bar mavi olur */
+}
+
+/* 2. UYARI (WARNING) MODU - TURUNCU */
+#remindersPanel.warning .panel-heading {
+  background: linear-gradient(135deg, #ff8f00 0%, #ff5722 100%);
+  box-shadow: 0 10px 30px rgba(255, 87, 34, 0.4);
+}
+#remindersPanel.warning .reminder-item {
+  border-left-color: #ff9f0a; /* Yazıların yanındaki bar turuncu olur */
+}
+
+/* 3. KRİTİK (CRITICAL) MODU - KIRMIZI */
+#remindersPanel.critical .panel-heading {
+  background: linear-gradient(135deg, #c62828 0%, #ff1744 100%);
+  box-shadow: 0 10px 30px rgba(255, 23, 68, 0.5);
+  animation: header-shake 0.1s infinite; /* Kritik durumda başlık da titrer */
+}
+#remindersPanel.critical .reminder-item {
+  border-left-color: #ff1744; /* Yazıların yanındaki bar kırmızı olur */
+  background: rgba(198, 40, 40, 0.1); /* Arka planı hafif kırmızımtırak yap */
+}
+
+/* Hatırlatma öğelerinin yanındaki barın rengini dinamik yapmak için sabit rengi ezmeliyiz */
+.reminder-item {
+  transition: border-left-color 0.5s ease, background 0.5s ease;
+}
+
+#announcement {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  /* 🔴 YÜKSEKLİĞİ SABİTLEDİK (BÜYÜMEZ) */
+  height: 130px; 
+  max-height: 130px;
+  overflow: hidden; /* Taşmaları gizle */
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 40px;
+  border-radius: 25px;
+  
+  /* Başlangıç font boyutu (En büyük hali) */
+  font-size: 48px;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+  
+  /* Diğer mevcut görsel efektleriniz (blur, shadow vs.) kalabilir */
+  backdrop-filter: blur(15px);
+  z-index: 1000;
+  transition: background 0.5s ease; 
+}
+
+/* ============================================================
+   MOBİL UYUMLULUK VE RESPONSIVE TASARIM KATMANI
+   ============================================================ */
+
+/* Genel Konteyner Düzenlemesi */
+@media (max-width: 1024px) {
+    body {
+        flex-direction: column; /* Yan menü ve içeriği dikey hizala */
+    }
+
+    .sidebar {
+        position: relative; /* Sabit pozisyondan çıkar */
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo-area {
+        margin-bottom: 20px;
+    }
+
+    nav {
+        display: flex;
+        flex-direction: row; /* Menü öğelerini yan yana diz */
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    nav a {
+        padding: 10px 15px;
+        margin-bottom: 0;
+        font-size: 13px;
+    }
+
+    .main {
+        margin-left: 0; /* Boşluğu kaldır */
+        padding: 20px;
+    }
+
+    /* Grid Yapılarını Tek Kolona Düşür */
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    .header-info {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .btn-group {
+        flex-direction: column; /* Butonları mobilde alt alta al */
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+/* Küçük Telefonlar İçin Ekstra Hassasiyet */
+@media (max-width: 480px) {
+    .card-title {
+        font-size: 16px;
+    }
+
+    textarea, input, select {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    nav a span {
+        font-size: 12px;
+    }
+    
+    #clock {
+        font-size: 16px;
+    }
+}
+
+.developer-signature {
+  position: fixed;
+  right: 15px;
+  bottom: 55px; /* Haber bandının hemen üstü */
+  font-size: 10px;
+  font-family: 'Roboto', sans-serif;
+  color: rgba(255, 255, 255, 0.15); /* Çok silik, asil bir görünüm */
+  letter-spacing: 1px;
+  pointer-events: none;
+  z-index: 9998;
+  text-transform: uppercase;
+}
