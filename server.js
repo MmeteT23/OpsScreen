@@ -16,6 +16,11 @@ const __dirname  = path.dirname(__filename);
 
 const app = express();
 
+const IS_RENDER = Boolean(process.env.RENDER);
+const PUBLIC_BASE_URL =
+  process.env.PUBLIC_BASE_URL ||
+  (process.env.RENDER_EXTERNAL_URL ? `https://${process.env.RENDER_EXTERNAL_URL}` : null);
+
 // === ADMIN KORUMA
 const ADMIN_USER = process.env.ADMIN_USER || "celebi";
 const ADMIN_PASS = process.env.ADMIN_PASS || "chs2026*";
@@ -52,13 +57,14 @@ function startTryCloudflare() {
     setTimeout(startTryCloudflare, 5000);
   });
 }
-startTryCloudflare();
+if (!IS_RENDER && !PUBLIC_BASE_URL) startTryCloudflare();
 
 app.get("/api/admin-qr", async (_req, res) => {
   try {
-    if (!tunnelURL) return res.json({ url: null, qr: null, status: "waiting_tunnel" });
+    const baseUrl = PUBLIC_BASE_URL || tunnelURL;
+    if (!baseUrl) return res.json({ url: null, qr: null, status: "waiting_tunnel" });
 
-    const adminURL = tunnelURL + "/admin.html";
+    const adminURL = baseUrl + "/admin.html";
     const qr = await QRCode.toDataURL(adminURL, { margin: 1, width: 220 });
     return res.json({ url: adminURL, qr, status: "ok" });
   } catch {
@@ -67,7 +73,7 @@ app.get("/api/admin-qr", async (_req, res) => {
 });
 
 app.get("/api/tunnel-url", (_req, res) => {
-  res.json({ url: tunnelURL });
+  res.json({ url: PUBLIC_BASE_URL || tunnelURL });
 });
 
 // /admin korumalı
@@ -256,7 +262,6 @@ app.get('/api/duyurular', (_req, res) => {
   res.json(readJSON(DUYURULAR_PATH, []));
 });
 
-
 app.post('/api/duyurular', (req, res) => {
   const { text, type } = req.body || {};
   if (!text || !type) return res.status(400).json({ error: 'text ve type zorunludur' });
@@ -274,35 +279,6 @@ app.post('/api/duyurular', (req, res) => {
 
   io.emit('yeniDuyuru', yeni);
   res.json({ ok: true, item: yeni });
-});
-
-// ✅ Yeni: tüm duyuruları temizle (Admin 'DURDUR' için)
-app.delete('/api/duyurular', (_req, res) => {
-  writeJSON(DUYURULAR_PATH, []);
-  io.emit('duyurularGuncellendi');
-  res.json({ ok: true });
-});
-
-// ✅ Geriye uyumluluk: /api/announcement alias (admin eski ise)
-app.get('/api/announcement', (_req, res) => res.json(readJSON(DUYURULAR_PATH, [])));
-app.post('/api/announcement', (req, res) => {
-  // Aynı mantık: /api/duyurular
-  const { text, type } = req.body || {};
-  if (!text || !type) return res.status(400).json({ error: 'text ve type zorunludur' });
-
-  const list = readJSON(DUYURULAR_PATH, []);
-  const yeni = { id: Date.now(), text: String(text).trim(), type, createdAt: new Date().toISOString() };
-
-  list.unshift(yeni);
-  writeJSON(DUYURULAR_PATH, list);
-
-  io.emit('yeniDuyuru', yeni);
-  res.json({ ok: true, item: yeni });
-});
-app.delete('/api/announcement', (_req, res) => {
-  writeJSON(DUYURULAR_PATH, []);
-  io.emit('duyurularGuncellendi');
-  res.json({ ok: true });
 });
 
 app.delete('/api/duyurular/:id', (req, res) => {
@@ -603,5 +579,8 @@ syncCurrentMediaCompat();
 // === Sunucu
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`✅ http://localhost:${PORT}`);
+  console.log(`✅ Server started on port ${PORT}`);
+  if (PUBLIC_BASE_URL) {
+    console.log(`🌍 Public URL: ${PUBLIC_BASE_URL}`);
+  }
 });

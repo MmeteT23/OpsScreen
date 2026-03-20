@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: celebi-duyuru-ekrani
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: ADMIN_USER
+        value: celebi
+      - key: ADMIN_PASS
+        sync: false
