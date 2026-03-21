@@ -159,7 +159,7 @@
       const type = document.getElementById('annType').value;
       if(!text) return alert("Metin girin!");
 
-      await fetch('/api/announcement', {
+      await fetch('/api/duyurular', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }, // Bu header olmazsa sunucu metni okuyamaz
         body: JSON.stringify({ text, type })
@@ -169,20 +169,8 @@
     }
 
     async function stopAnn() {
-      await fetch('/api/announcement', { method: 'DELETE' });
+      await fetch('/api/duyurular', { method: 'DELETE' });
       alert("Durduruldu.");
-    }
-
-
-    // Render / buton uyumluluğu
-    async function publishAnnouncement(reshareText = null, reshareType = null) {
-      if (reshareText !== null) document.getElementById('annText').value = reshareText;
-      if (reshareType !== null) document.getElementById('annType').value = reshareType;
-      return publishAnn();
-    }
-
-    async function stopAnnouncement() {
-      return stopAnn();
     }
 
     // 3. HATIRLATMA (FİXED)
