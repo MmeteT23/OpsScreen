@@ -149,40 +149,62 @@
   </main>
 
   <script>
-    // 1. GENEL AYARLAR
-    setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString('tr-TR'); }, 1000);
-    document.getElementById('fileInput').onchange = e => { document.getElementById('fileInfo').textContent = e.target.files[0]?.name || "Seçilmedi"; };
+    setInterval(() => {
+      const el = document.getElementById('clock');
+      if (el) el.textContent = new Date().toLocaleTimeString('tr-TR');
+    }, 1000);
 
-    // 2. DUYURU (FİXED)
+    const fileInputEl = document.getElementById('fileInput');
+    if (fileInputEl) {
+      fileInputEl.onchange = e => {
+        document.getElementById('fileInfo').textContent = e.target.files[0]?.name || "Seçilmedi";
+      };
+    }
+
+    // 1) Duyurular
     async function publishAnn() {
       const text = document.getElementById('annText').value.trim();
       const type = document.getElementById('annType').value;
-      if(!text) return alert("Metin girin!");
+      if (!text) return alert("Metin girin!");
 
-      await fetch('/api/announcement', {
+      const res = await fetch('/api/duyurular', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }, // Bu header olmazsa sunucu metni okuyamaz
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, type })
       });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) {
+        return alert("Duyuru gönderilemedi.");
+      }
+
       document.getElementById('annText').value = "";
       alert("Gönderildi!");
     }
 
     async function stopAnn() {
-      await fetch('/api/announcement', { method: 'DELETE' });
+      const res = await fetch('/api/duyurular', { method: 'DELETE' });
+      if (!res.ok) return alert("Durdurma işlemi başarısız.");
       alert("Durduruldu.");
     }
 
-    // 3. HATIRLATMA (FİXED)
+    // 2) Hatırlatmalar
     async function loadReminders() {
       const res = await fetch('/api/reminders');
-      const data = await res.json();
+      const data = await res.json().catch(() => []);
       const box = document.getElementById('remList');
+      if (!box) return;
+
+      if (!Array.isArray(data) || !data.length) {
+        box.innerHTML = '<div style="opacity:.7; padding:10px 0;">Henüz hatırlatma yok.</div>';
+        return;
+      }
+
       box.innerHTML = "";
       data.forEach(it => {
         box.innerHTML += `
           <div class="list-row">
-            <span style="font-size:14px;">${it.text}</span>
+            <span style="font-size:14px;">${it.text || ''}</span>
             <div class="btn-group" style="flex:none; gap:5px;">
               <button onclick="speakRem(${it.id})" class="btn-blue" style="padding:5px 10px; font-size:11px;">📢</button>
               <button onclick="deleteRem(${it.id})" class="btn-red" style="padding:5px 10px; font-size:11px;">🗑️</button>
@@ -193,27 +215,34 @@
 
     async function addRem() {
       const text = document.getElementById('remText').value.trim();
-      if(!text) return;
+      if (!text) return alert("Hatırlatma metni girin.");
+
       await fetch('/api/reminders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
       });
+
       document.getElementById('remText').value = "";
       loadReminders();
     }
 
-    async function deleteRem(id) { await fetch('/api/reminders/' + id, { method: 'DELETE' }); loadReminders(); }
-    async function speakRem(id) { await fetch('/api/reminders/' + id + '/speak', { method: 'POST' }); }
+    async function deleteRem(id) {
+      await fetch('/api/reminders/' + id, { method: 'DELETE' });
+      loadReminders();
+    }
 
-    // 4. MEDYA (FİXED + SANİYE)
+    async function speakRem(id) {
+      await fetch('/api/reminders/' + id + '/speak', { method: 'POST' });
+    }
+
+    // 3) Medya
     async function uploadMedia() {
       const file = document.getElementById('fileInput').files[0];
       const duration = document.getElementById('imgSec').value;
-      if(!file) return alert("Dosya seçin!");
+      if (!file) return alert("Dosya seçin!");
 
       try {
-        // Döngü süresini kaydet
         await fetch('/api/media-settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -221,7 +250,6 @@
         });
 
         const fd = new FormData();
-        // server.js upload.single('media') bekliyor
         fd.append('media', file);
 
         const res = await fetch('/api/media-upload', {
@@ -231,36 +259,32 @@
 
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.ok) {
-          throw new Error(data.error || ('HTTP ' + res.status));
+          return alert("Medya yükleme başarısız.");
         }
 
-        // Yeni yüklenen medya anında ana ekranda aktif olsun
         if (data.item && data.item.id) {
-          await fetch('/api/media-list/' + data.item.id + '/activate', {
-            method: 'POST'
-          });
+          await fetch('/api/media-list/' + data.item.id + '/activate', { method: 'POST' });
         }
 
         document.getElementById('fileInput').value = "";
         document.getElementById('fileInfo').textContent = "Seçilmedi";
         await loadMedia();
         alert("Medya yüklendi!");
-      } catch (err) {
-        alert("Medya yükleme hatası: " + (err.message || err));
+      } catch (e) {
+        alert("Medya yükleme hatası.");
       }
-    }
     }
 
     async function loadMedia() {
       const res = await fetch('/api/media-list');
-      const payload = await res.json();
+      const payload = await res.json().catch(() => ({ items: [], settings: {} }));
 
-      // server.js -> { items: [...], settings: {...} }
       const items = Array.isArray(payload) ? payload : (payload.items || []);
       const settings = Array.isArray(payload) ? {} : (payload.settings || {});
       const activeId = settings.activeId;
 
       const grid = document.getElementById('mediaGrid');
+      if (!grid) return;
       grid.innerHTML = "";
 
       if (!items.length) {
@@ -269,36 +293,35 @@
       }
 
       items.forEach(it => {
-        const isActive = String(activeId) === String(it.id);
         const preview = it.mediaType === 'video'
           ? `<video style="width:100%; height:140px; object-fit:cover; border-radius:14px; margin-bottom:10px; background:#000;" src="${it.url}" muted playsinline></video>`
           : `<img style="width:100%; height:140px; object-fit:cover; border-radius:14px; margin-bottom:10px; background:#000;" src="${it.url}" alt="">`;
 
-        const active = isActive ? '<span class="active-badge">AKTİF</span>' : '';
+        const active = String(activeId) === String(it.id) ? '<span class="active-badge">AKTİF</span>' : '';
 
         grid.innerHTML += `
-          <div class="card" style="padding: 15px; margin:0; text-align:center;">
+          <div class="card" style="padding:15px; margin:0; text-align:center;">
             ${preview}
-            <div style="font-size:12px; font-weight:600; margin-bottom:10px; word-break:break-word;">${it.name || it.fileName} ${active}</div>
+            <div style="font-size:12px; font-weight:600; margin-bottom:10px; word-break:break-word;">${it.name || it.fileName || ''} ${active}</div>
             <div class="btn-group">
               <button onclick="activateMed(${it.id})" class="btn-green" style="font-size:11px;">GÖSTER</button>
               <button onclick="deleteMed(${it.id})" class="btn-red" style="padding:5px; flex:none; width:60px;">SİL</button>
             </div>
           </div>`;
       });
-    });
     }
 
     async function activateMed(id) {
       await fetch('/api/media-list/' + id + '/activate', { method: 'POST' });
       loadMedia();
-    }/activate`, { method: 'POST' }); loadMedia(); }
+    }
+
     async function deleteMed(id) {
-      if(confirm("Silinsin mi?")) {
+      if (confirm("Silinsin mi?")) {
         await fetch('/api/media-list/' + id, { method: 'DELETE' });
         loadMedia();
       }
-    }`, { method: 'DELETE' }); loadMedia(); } }
+    }
 
     // Başlat
     loadReminders();

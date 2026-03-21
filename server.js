@@ -44,7 +44,6 @@ function getPublicBaseUrl(req) {
 
   return tunnelURL;
 }
-
 let tunnelProc = null;
 
 // === TRY CLOUDFLARE
@@ -276,7 +275,6 @@ app.get('/api/duyurular', (_req, res) => {
   res.json(readJSON(DUYURULAR_PATH, []));
 });
 
-
 app.post('/api/duyurular', (req, res) => {
   const { text, type } = req.body || {};
   if (!text || !type) return res.status(400).json({ error: 'text ve type zorunludur' });
@@ -296,34 +294,12 @@ app.post('/api/duyurular', (req, res) => {
   res.json({ ok: true, item: yeni });
 });
 
-// ✅ Yeni: tüm duyuruları temizle (Admin 'DURDUR' için)
 app.delete('/api/duyurular', (_req, res) => {
   writeJSON(DUYURULAR_PATH, []);
   io.emit('duyurularGuncellendi');
   res.json({ ok: true });
 });
 
-// ✅ Geriye uyumluluk: /api/announcement alias (admin eski ise)
-app.get('/api/announcement', (_req, res) => res.json(readJSON(DUYURULAR_PATH, [])));
-app.post('/api/announcement', (req, res) => {
-  // Aynı mantık: /api/duyurular
-  const { text, type } = req.body || {};
-  if (!text || !type) return res.status(400).json({ error: 'text ve type zorunludur' });
-
-  const list = readJSON(DUYURULAR_PATH, []);
-  const yeni = { id: Date.now(), text: String(text).trim(), type, createdAt: new Date().toISOString() };
-
-  list.unshift(yeni);
-  writeJSON(DUYURULAR_PATH, list);
-
-  io.emit('yeniDuyuru', yeni);
-  res.json({ ok: true, item: yeni });
-});
-app.delete('/api/announcement', (_req, res) => {
-  writeJSON(DUYURULAR_PATH, []);
-  io.emit('duyurularGuncellendi');
-  res.json({ ok: true });
-});
 
 app.delete('/api/duyurular/:id', (req, res) => {
   const id = String(req.params.id);
@@ -442,6 +418,36 @@ app.post('/api/media-upload', upload.single('media'), (req, res) => {
 
   res.json({ ok: true, item });
 });
+
+app.post('/api/upload', upload.single('media'), (req, res) => {
+  if (!req.file) return res.status(400).json({ ok: false, error: 'Dosya yüklenemedi' });
+
+  const mime = req.file.mimetype || "";
+  const mediaType = mime.startsWith("video/") ? "video" : "image";
+
+  const item = {
+    id: Date.now(),
+    name: req.file.originalname || req.file.filename,
+    fileName: req.file.filename,
+    url: `/uploads/${req.file.filename}`,
+    mime,
+    mediaType,
+    createdAt: Date.now()
+  };
+
+  const list = getMediaList();
+  list.unshift(item);
+  writeJSON(MEDIA_LIST_PATH, list);
+
+  const settings = getMediaSettings();
+  if (!settings.activeId) {
+    setMediaSettings({ activeId: item.id, lastSwitchAt: Date.now() });
+  }
+
+  emitMediaUpdate();
+  res.json({ ok: true, item });
+});
+
 
 app.post('/api/media-list/:id/activate', (req, res) => {
   const id = String(req.params.id);
@@ -624,4 +630,26 @@ syncCurrentMediaCompat();
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`✅ http://localhost:${PORT}`);
+});
+
+app.get('/api/announcement', (_req, res) => {
+  res.json(readJSON(DUYURULAR_PATH, []));
+});
+
+app.post('/api/announcement', (req, res) => {
+  const { text, type } = req.body || {};
+  if (!text || !type) return res.status(400).json({ error: 'text ve type zorunludur' });
+
+  const list = readJSON(DUYURULAR_PATH, []);
+  const yeni = { id: Date.now(), text: String(text).trim(), type, createdAt: new Date().toISOString() };
+  list.unshift(yeni);
+  writeJSON(DUYURULAR_PATH, list);
+  io.emit('yeniDuyuru', yeni);
+  res.json({ ok: true, item: yeni });
+});
+
+app.delete('/api/announcement', (_req, res) => {
+  writeJSON(DUYURULAR_PATH, []);
+  io.emit('duyurularGuncellendi');
+  res.json({ ok: true });
 });
