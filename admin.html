@@ -173,6 +173,18 @@
       alert("Durduruldu.");
     }
 
+
+    // Render / buton uyumluluğu
+    async function publishAnnouncement(reshareText = null, reshareType = null) {
+      if (reshareText !== null) document.getElementById('annText').value = reshareText;
+      if (reshareType !== null) document.getElementById('annType').value = reshareType;
+      return publishAnn();
+    }
+
+    async function stopAnnouncement() {
+      return stopAnn();
+    }
+
     // 3. HATIRLATMA (FİXED)
     async function loadReminders() {
       const res = await fetch('/api/reminders');
