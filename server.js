@@ -26,25 +26,6 @@ const adminAuth = basicAuth({
 });
 
 let tunnelURL = null;
-
-function getPublicBaseUrl(req) {
-  const explicit = process.env.PUBLIC_BASE_URL;
-  if (explicit) return explicit.replace(/\/$/, "");
-
-  const renderExternal = process.env.RENDER_EXTERNAL_URL;
-  if (renderExternal) {
-    return /^https?:\/\//i.test(renderExternal)
-      ? renderExternal.replace(/\/$/, "")
-      : ("https://" + renderExternal).replace(/\/$/, "");
-  }
-
-  const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
-  const host = req.headers["x-forwarded-host"] || req.headers.host;
-  if (host) return `${proto}://${host}`.replace(/\/$/, "");
-
-  return tunnelURL;
-}
-
 let tunnelProc = null;
 
 // === TRY CLOUDFLARE
@@ -73,12 +54,11 @@ function startTryCloudflare() {
 }
 startTryCloudflare();
 
-app.get("/api/admin-qr", async (req, res) => {
+app.get("/api/admin-qr", async (_req, res) => {
   try {
-    const baseUrl = getPublicBaseUrl(req);
-    if (!baseUrl) return res.json({ url: null, qr: null, status: "waiting_tunnel" });
+    if (!tunnelURL) return res.json({ url: null, qr: null, status: "waiting_tunnel" });
 
-    const adminURL = baseUrl + "/admin.html";
+    const adminURL = tunnelURL + "/admin.html";
     const qr = await QRCode.toDataURL(adminURL, { margin: 1, width: 220 });
     return res.json({ url: adminURL, qr, status: "ok" });
   } catch {
@@ -86,8 +66,8 @@ app.get("/api/admin-qr", async (req, res) => {
   }
 });
 
-app.get("/api/tunnel-url", (req, res) => {
-  res.json({ url: getPublicBaseUrl(req) });
+app.get("/api/tunnel-url", (_req, res) => {
+  res.json({ url: tunnelURL });
 });
 
 // /admin korumalı
@@ -412,6 +392,36 @@ app.post('/api/media-upload', upload.single('media'), (req, res) => {
 
   res.json({ ok: true, item });
 });
+// Eski admin sürümleri için upload alias
+app.post('/api/upload', upload.single('media'), (req, res) => {
+  if (!req.file) return res.status(400).json({ ok: false, error: 'Dosya yüklenemedi' });
+
+  const mime = req.file.mimetype || "";
+  const mediaType = mime.startsWith("video/") ? "video" : "image";
+
+  const item = {
+    id: Date.now(),
+    name: req.file.originalname || req.file.filename,
+    fileName: req.file.filename,
+    url: `/uploads/${req.file.filename}`,
+    mime,
+    mediaType,
+    createdAt: Date.now()
+  };
+
+  const list = getMediaList();
+  list.unshift(item);
+  writeJSON(MEDIA_LIST_PATH, list);
+
+  const settings = getMediaSettings();
+  if (!settings.activeId) {
+    setMediaSettings({ activeId: item.id, lastSwitchAt: Date.now() });
+  }
+
+  emitMediaUpdate();
+  res.json({ ok: true, item });
+});
+
 
 app.post('/api/media-list/:id/activate', (req, res) => {
   const id = String(req.params.id);

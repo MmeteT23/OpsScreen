@@ -159,7 +159,7 @@
       const type = document.getElementById('annType').value;
       if(!text) return alert("Metin girin!");
 
-      await fetch('/api/duyurular', {
+      await fetch('/api/announcement', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }, // Bu header olmazsa sunucu metni okuyamaz
         body: JSON.stringify({ text, type })
@@ -169,7 +169,7 @@
     }
 
     async function stopAnn() {
-      await fetch('/api/duyurular', { method: 'DELETE' });
+      await fetch('/api/announcement', { method: 'DELETE' });
       alert("Durduruldu.");
     }
 
@@ -212,39 +212,93 @@
       const duration = document.getElementById('imgSec').value;
       if(!file) return alert("Dosya seçin!");
 
-      const fd = new FormData();
-      fd.append('file', file); // SERVER.JS BURAYI 'file' ADIYLA BEKLİYOR
-      fd.append('duration', duration);
+      try {
+        // Döngü süresini kaydet
+        await fetch('/api/media-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: true, intervalSec: Number(duration) || 10 })
+        });
 
-      const res = await fetch('/api/upload', { method: 'POST', body: fd });
-      if(res.ok) {
-        alert("Yüklendi!");
+        const fd = new FormData();
+        // server.js upload.single('media') bekliyor
+        fd.append('media', file);
+
+        const res = await fetch('/api/media-upload', {
+          method: 'POST',
+          body: fd
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || ('HTTP ' + res.status));
+        }
+
+        // Yeni yüklenen medya anında ana ekranda aktif olsun
+        if (data.item && data.item.id) {
+          await fetch('/api/media-list/' + data.item.id + '/activate', {
+            method: 'POST'
+          });
+        }
+
         document.getElementById('fileInput').value = "";
         document.getElementById('fileInfo').textContent = "Seçilmedi";
-        loadMedia();
+        await loadMedia();
+        alert("Medya yüklendi!");
+      } catch (err) {
+        alert("Medya yükleme hatası: " + (err.message || err));
       }
+    }
     }
 
     async function loadMedia() {
       const res = await fetch('/api/media-list');
-      const data = await res.json();
+      const payload = await res.json();
+
+      // server.js -> { items: [...], settings: {...} }
+      const items = Array.isArray(payload) ? payload : (payload.items || []);
+      const settings = Array.isArray(payload) ? {} : (payload.settings || {});
+      const activeId = settings.activeId;
+
       const grid = document.getElementById('mediaGrid');
       grid.innerHTML = "";
-      data.forEach(it => {
-        const active = it.active ? '<span class="active-badge">AKTİF</span>' : '';
+
+      if (!items.length) {
+        grid.innerHTML = '<div style="opacity:.7; padding:10px 0;">Henüz medya yüklenmedi.</div>';
+        return;
+      }
+
+      items.forEach(it => {
+        const isActive = String(activeId) === String(it.id);
+        const preview = it.mediaType === 'video'
+          ? `<video style="width:100%; height:140px; object-fit:cover; border-radius:14px; margin-bottom:10px; background:#000;" src="${it.url}" muted playsinline></video>`
+          : `<img style="width:100%; height:140px; object-fit:cover; border-radius:14px; margin-bottom:10px; background:#000;" src="${it.url}" alt="">`;
+
+        const active = isActive ? '<span class="active-badge">AKTİF</span>' : '';
+
         grid.innerHTML += `
           <div class="card" style="padding: 15px; margin:0; text-align:center;">
-            <div style="font-size:12px; font-weight:600; margin-bottom:10px;">${it.fileName} ${active}</div>
+            ${preview}
+            <div style="font-size:12px; font-weight:600; margin-bottom:10px; word-break:break-word;">${it.name || it.fileName} ${active}</div>
             <div class="btn-group">
               <button onclick="activateMed(${it.id})" class="btn-green" style="font-size:11px;">GÖSTER</button>
-              <button onclick="deleteMed(${it.id})" class="btn-red" style="padding:5px; flex:none; width:40px;">🗑️</button>
+              <button onclick="deleteMed(${it.id})" class="btn-red" style="padding:5px; flex:none; width:60px;">SİL</button>
             </div>
           </div>`;
       });
+    });
     }
 
-    async function activateMed(id) { await fetch(`/api/media-list/${id}/activate`, { method: 'POST' }); loadMedia(); }
-    async function deleteMed(id) { if(confirm("Silinsin mi?")) { await fetch(`/api/media-list/${id}`, { method: 'DELETE' }); loadMedia(); } }
+    async function activateMed(id) {
+      await fetch('/api/media-list/' + id + '/activate', { method: 'POST' });
+      loadMedia();
+    }/activate`, { method: 'POST' }); loadMedia(); }
+    async function deleteMed(id) {
+      if(confirm("Silinsin mi?")) {
+        await fetch('/api/media-list/' + id, { method: 'DELETE' });
+        loadMedia();
+      }
+    }`, { method: 'DELETE' }); loadMedia(); } }
 
     // Başlat
     loadReminders();
