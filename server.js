@@ -26,6 +26,25 @@ const adminAuth = basicAuth({
 });
 
 let tunnelURL = null;
+
+function getPublicBaseUrl(req) {
+  const explicit = process.env.PUBLIC_BASE_URL;
+  if (explicit) return explicit.replace(/\/$/, "");
+
+  const renderExternal = process.env.RENDER_EXTERNAL_URL;
+  if (renderExternal) {
+    return /^https?:\/\//i.test(renderExternal)
+      ? renderExternal.replace(/\/$/, "")
+      : ("https://" + renderExternal).replace(/\/$/, "");
+  }
+
+  const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
+  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  if (host) return `${proto}://${host}`.replace(/\/$/, "");
+
+  return tunnelURL;
+}
+
 let tunnelProc = null;
 
 // === TRY CLOUDFLARE
@@ -54,11 +73,12 @@ function startTryCloudflare() {
 }
 startTryCloudflare();
 
-app.get("/api/admin-qr", async (_req, res) => {
+app.get("/api/admin-qr", async (req, res) => {
   try {
-    if (!tunnelURL) return res.json({ url: null, qr: null, status: "waiting_tunnel" });
+    const baseUrl = getPublicBaseUrl(req);
+    if (!baseUrl) return res.json({ url: null, qr: null, status: "waiting_tunnel" });
 
-    const adminURL = tunnelURL + "/admin.html";
+    const adminURL = baseUrl + "/admin.html";
     const qr = await QRCode.toDataURL(adminURL, { margin: 1, width: 220 });
     return res.json({ url: adminURL, qr, status: "ok" });
   } catch {
@@ -66,8 +86,8 @@ app.get("/api/admin-qr", async (_req, res) => {
   }
 });
 
-app.get("/api/tunnel-url", (_req, res) => {
-  res.json({ url: tunnelURL });
+app.get("/api/tunnel-url", (req, res) => {
+  res.json({ url: getPublicBaseUrl(req) });
 });
 
 // /admin korumalı
@@ -274,44 +294,6 @@ app.post('/api/duyurular', (req, res) => {
   io.emit('yeniDuyuru', yeni);
   res.json({ ok: true, item: yeni });
 });
-
-// Tüm duyuruları temizle
-app.delete('/api/duyurular', (_req, res) => {
-  writeJSON(DUYURULAR_PATH, []);
-  io.emit('duyurularGuncellendi');
-  res.json({ ok: true });
-});
-
-// Eski admin sürümleri için uyumluluk alias'ları
-app.get('/api/announcement', (_req, res) => {
-  res.json(readJSON(DUYURULAR_PATH, []));
-});
-
-app.post('/api/announcement', (req, res) => {
-  const { text, type } = req.body || {};
-  if (!text || !type) return res.status(400).json({ error: 'text ve type zorunludur' });
-
-  const list = readJSON(DUYURULAR_PATH, []);
-  const yeni = {
-    id: Date.now(),
-    text: String(text).trim(),
-    type,
-    createdAt: new Date().toISOString()
-  };
-
-  list.unshift(yeni);
-  writeJSON(DUYURULAR_PATH, list);
-
-  io.emit('yeniDuyuru', yeni);
-  res.json({ ok: true, item: yeni });
-});
-
-app.delete('/api/announcement', (_req, res) => {
-  writeJSON(DUYURULAR_PATH, []);
-  io.emit('duyurularGuncellendi');
-  res.json({ ok: true });
-});
-
 
 app.delete('/api/duyurular/:id', (req, res) => {
   const id = String(req.params.id);
