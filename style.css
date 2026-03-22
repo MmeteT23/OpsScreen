@@ -962,3 +962,29 @@ button.speak-btn:hover{
   object-position: center;
   display: block;
 }
+
+/* ===== MEDYA FINAL AYAR ===== */
+
+.image-only-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  width: 840px;      /* biraz büyüttük */
+  height: 940px;     /* biraz büyüttük */
+
+  transform: translateY(-40px); /* 🔥 yukarı taşıdık */
+
+  margin: 0 auto;
+}
+
+/* Görsel + video */
+.image-only-slot .farkindalik-img,
+.image-only-slot img.farkindalik-img,
+.image-only-slot video.farkindalik-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
