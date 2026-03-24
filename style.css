@@ -974,7 +974,7 @@ button.speak-btn:hover{
   width: 840px;      /* biraz büyüttük */
   height: 940px;     /* biraz büyüttük */
 
-  transform: translateY(-40px); /* 🔥 yukarı taşıdık */
+  transform: translate(60px, -40px);
 
   margin: 0 auto;
 }
