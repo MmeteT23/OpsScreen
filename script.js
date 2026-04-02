@@ -309,59 +309,7 @@ async function fetchNews() {
 }
 fetchNews();
 setInterval(fetchNews, 2* 60 * 1000);
-async function loadLatestAnnouncement() {
-  try {
-    const res = await fetch('/api/duyurular');
-    const list = await res.json();
-    if (list && list.length > 0) {
-      const duyuru = list[0]; // En son duyuru
-      announcementEl.textContent = duyuru.text;
-      announcementEl.classList.add('breathing');
-      applyAnnouncementStyle(duyuru.type);
-      setTimeout(() => { fitAnnouncementText(announcementEl); }, 10);
-    }
-  } catch (e) {
-    console.error("Duyuru yüklenemedi:", e);
-  }
-}
-loadLatestAnnouncement();
 
-function syncNewsTicker() {
-  if (newsTickerWidth > 0) {
-    const containerWidth = window.innerWidth;
-    const totalWidth = newsTickerWidth + containerWidth;
-    const speed = 0.05; // Hız ayarı
-    
-    // Date.now() kullanarak her cihazda aynı ofseti hesapla
-    const timeOffset = (Date.now() * speed) % totalWidth;
-    newsTickerOffset = containerWidth - timeOffset;
-    
-    newsEl.style.transform = `translateX(${newsTickerOffset}px)`;
-  }
-  requestAnimationFrame(syncNewsTicker);
-}
-
-fetchNews();
-setInterval(fetchNews, 2 * 60 * 1000);
-requestAnimationFrame(syncNewsTicker);
-
-
-// Medya
-async function loadCurrentMedia() {
-  try {
-    const j = await (await fetch('/api/current-image')).json();
-    const img = document.getElementById('custom-image');
-    const vid = document.getElementById('custom-video');
-    if (img) { img.style.display = 'none'; img.src = ''; }
-    if (vid) { vid.style.display = 'none'; vid.src = ''; }
-    if (!j?.url) return;
-    if (j.mediaType === 'video') {
-      if (vid) { vid.src = j.url; vid.style.display = 'block'; vid.play().catch(() => {}); }
-    } else {
-      if (img) { img.src = j.url; img.style.display = 'block'; }
-    }
-  } catch {}
-}
 // Hatırlatmalar (render + auto-scroll)
 async function loadReminders() {
   try {
@@ -441,6 +389,7 @@ async function loadCurrentMedia() {
   }
 }
 loadCurrentMedia();
+loadCurrentAnnouncement();
 socket.on('imageUpdated', loadCurrentMedia);
 
 // Duyuru
@@ -458,6 +407,31 @@ function fitAnnouncementText(el) {
 }
 
 // 🔴 SOCKET OLAYINI GÜNCELLEYİN
+
+
+async function loadCurrentAnnouncement() {
+  try {
+    const res = await fetch('/api/current-announcement');
+    const duyuru = await res.json();
+
+    if (!duyuru || !duyuru.text) {
+      resetAnnouncement();
+      return;
+    }
+
+    announcementEl.textContent = duyuru.text;
+    announcementEl.classList.add('breathing');
+    applyAnnouncementStyle(duyuru.type || 'info');
+
+    setTimeout(() => {
+      try { fitAnnouncementText(announcementEl); } catch {}
+    }, 10);
+  } catch (e) {
+    console.warn('Aktif duyuru yüklenemedi:', e);
+    resetAnnouncement();
+  }
+}
+
 socket.on('yeniDuyuru', (duyuru) => {
   announcementEl.textContent = duyuru.text;
   announcementEl.classList.add('breathing');
