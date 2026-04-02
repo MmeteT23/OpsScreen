@@ -392,11 +392,9 @@ html,body{
   padding-left:100%;
   animation:ticker 200s linear infinite;
   font-size:33px;
+  will-change: transform;
 }
 
-@keyframes ticker{
-  0%{transform:translateX(0)}
-  100%{transform:translateX(-100%)}
 }
 
 /* Hatırlatma highlight efekti */
