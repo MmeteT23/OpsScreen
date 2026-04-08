@@ -291,7 +291,6 @@ html,body{
 
 /* Duyuru bandı */
 .announcement{
-  transform: translate(200px, -100px);
   position: fixed;
   left: 12px;
   right: 12px;
